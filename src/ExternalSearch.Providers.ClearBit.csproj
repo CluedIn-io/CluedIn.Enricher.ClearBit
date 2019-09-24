@@ -18,7 +18,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="CluedIn.ExternalSearch">
-      <Version>2.4.0-alpha0089</Version>
+      <Version>2.4.0-alpha0094</Version>
     </PackageReference>
     <PackageReference Include="EntityFramework" Version="6.1.2" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
