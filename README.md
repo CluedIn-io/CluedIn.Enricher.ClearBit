@@ -1,62 +1,48 @@
-# CluedIn.CSharp.Template
+# CluedIn.Enricher.ClearBit
 
-Template containing common files and folder structure for creating new C# repositories.
+CluedIn External Search for ClearBit Crawler.
 
-## Simple Usage
+------
 
-1. To create a Git repository for a new C# project follow the steps below
+## Overview
 
-    ```Shell
-    # Clone the CSharp template repository and step into the new folder
-    git clone https://github.com/CluedIn-io/CluedIn.CSharp.Template.git CluedIn.ProjectName
-    cd CluedIn.ProjectName
+This repository contains the code and associated tests for extracting companies logos based of Entities and Clues that have set a value for the Organization.Website core vocabulary. 
 
-    # Rename the Git remote to template
-    git remote rename origin template
-    ```
+## Usage
 
-1. Rename the Visual Studio solution in the root folder
+### NuGet Packages
 
-    ```Shell
-    ren CluedIn.CSharp.Template.sln CluedIn.ProjectName.sln
-    ```
+To use the `ClearBit` External Search with the `CluedIn` server you will have to add the CluedIn.Enricher.ClearBit nuget package to your environment.
 
-1. Create the CluedIn.ProjectName repository under the CluedIn organization in GitHub
+### Running Tests
 
-1. Set the new GitHub repository as the _origin_ remote
+A mocked environment is required to run `integration` and `acceptance` tests. The mocked environment can be built and run using the following [Docker](https://www.docker.com/) command:
 
-    ```Shell
-    git remote add origin https://github.com/CluedIn-io/CluedIn.ProjectName
-    ```
+```Shell
+docker-compose up --build -d
+```
 
-1. Push the content to the new Git repository
+Use the following commands to run all `Unit` and `Integration` tests within the repository:
 
-    ```Shell
-    git push
-    ```
+```Shell
+dotnet test .\ExternalSearch.ClearBit.sln --filter Unit
+dotnet test .\ExternalSearch.ClearBit.sln --filter Integration
+```
 
-Substitute _CluedIn.ProjectName_ for your project name.
+To run [Pester](https://github.com/pester/Pester) `acceptance` tests
 
-## CluedIn Repository Code Migration
+```PowerShell
+invoke-pester
+```
 
-To use this repository as a basis for migrating out an existing project from another repository use the instructions provided below.
+To review the [WireMock](http://wiremock.org/) HTTP proxy logs
 
-1. Create a feature branch to perform the code migration in
+```Shell
+docker-compose logs wiremock
+```
 
-    ```Shell
-    git checkout feature/Migrate-CluedIn-Repository-Code
-    ```
+### Tooling
 
-1. Copy across code from source repository
-
-1. Convert projects to VS2017 format so that `dotnet` CLI can work with them
-
-    ```PowerShell
-    gci . *.csproj -recurse | ForEach-Object { dotnet migrate-2017 migrate $_.FullName }
-    ```
-
-1. Remove backup files
-
-    ```PowerShell
-    gci . backup* -Directory -recurse | remove-item -recurse -force -verbose
-    ```
+- [Docker](https://www.docker.com/)
+- [Pester](https://github.com/pester/Pester)
+- [WireMock](http://wiremock.org/)
