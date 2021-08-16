@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<!--<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <ProjectGuid>{E3178D0F-4DDE-4D01-99E3-1B3451C1D8C2}</ProjectGuid>
     <RootNamespace>CluedIn.ExternalSearch.Providers.ClearBit</RootNamespace>
@@ -30,5 +30,18 @@
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.Net" />
     <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+</Project>-->
+
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\web.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CluedIn.Core" />
+    <PackageReference Include="CluedIn.ExternalSearch" />
+    <PackageReference Include="CluedIn.Processing" />
+    <PackageReference Include="CluedIn.Processing.Web" />
+    <PackageReference Include="CluedIn.Processing.Web.TechnologyDetection" />
   </ItemGroup>
 </Project>

@@ -59,9 +59,9 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
 
             // Query Input
             var entityType       = request.EntityMetaData.EntityType;
-            var website          = request.QueryParameters.GetValue(CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.Website, new HashSet<string>()).ToHashSet();
-            var organizationName = request.QueryParameters.GetValue(CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.OrganizationName, new HashSet<string>()).ToHashSet();
-            var emailDomainNames = request.QueryParameters.GetValue(CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.EmailDomainNames, new HashSet<string>()).ToHashSet();
+            var website          = request.QueryParameters.GetValue(CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.Website, new HashSet<string>()).ToHashSetEx();
+            var organizationName = request.QueryParameters.GetValue(CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.OrganizationName, new HashSet<string>()).ToHashSetEx();
+            var emailDomainNames = request.QueryParameters.GetValue(CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.EmailDomainNames, new HashSet<string>()).ToHashSetEx();
 
             emailDomainNames.AddRange(website.GetDomainNamesFromUris());
 
@@ -92,7 +92,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
 
             if (emailDomainNames.Any())
             {
-                var values = emailDomainNames.SelectMany(v => v.Split(new[] { ",", ";", "|" }, StringSplitOptions.RemoveEmptyEntries)).Select(v => v.ToLowerInvariant()).ToHashSet();
+                var values = emailDomainNames.SelectMany(v => v.Split(new[] { ",", ";", "|" }, StringSplitOptions.RemoveEmptyEntries)).Select(v => v.ToLowerInvariant()).ToHashSetEx();
 
                 foreach (var value in values.Where(v => !domainFilter(v)))
                 {
@@ -112,7 +112,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
             {
                 var values = organizationName.GetOrganizationNameVariants()
                                              .Select(NameNormalization.Normalize)
-                                             .ToHashSet();
+                                             .ToHashSetEx();
 
                 foreach (var value in values.Where(v => !nameFilter(v)))
                     yield return new ExternalSearchQuery(this, entityType, ExternalSearchQueryParameter.Name, value);
