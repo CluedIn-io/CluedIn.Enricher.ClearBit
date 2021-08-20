@@ -35,7 +35,15 @@
 
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
-    <EmbeddedResource Include="Resources\web.png" />
+    <Compile Remove="Disabled_ClearBitDomainExternalSearchProvider.cs" />
+    <Compile Remove="Disabled_ClearBitEmployeeExternalSearchProvider.cs" />
+    <Compile Remove="Disabled_ClearBitIPExternalSearchProvider.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Resources\clearbit.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\clearbit.png" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CluedIn.Core" />

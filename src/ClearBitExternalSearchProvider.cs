@@ -15,17 +15,21 @@ using System.Net;
 using CluedIn.Core;
 using CluedIn.Core.Data;
 using CluedIn.Core.Data.Parts;
+using CluedIn.Core.Data.Relational;
+using CluedIn.Core.ExternalSearch;
+using CluedIn.Core.Providers;
 using CluedIn.ExternalSearch.Filters;
 using CluedIn.ExternalSearch.Providers.ClearBit.Model;
 using CluedIn.ExternalSearch.Providers.ClearBit.Vocabularies;
 
 using RestSharp;
+using EntityType = CluedIn.Core.Data.EntityType;
 
 namespace CluedIn.ExternalSearch.Providers.ClearBit
 {
     /// <summary>The clear bit external search provider.</summary>
     /// <seealso cref="CluedIn.ExternalSearch.ExternalSearchProviderBase" />
-    public partial class ClearBitExternalSearchProvider : ExternalSearchProviderBase, IExternalSearchResultLogger
+    public partial class ClearBitExternalSearchProvider : ExternalSearchProviderBase, IExternalSearchResultLogger, IExtendedEnricherMetadata
     {
         /**********************************************************************************************************
          * CONSTRUCTORS
@@ -208,7 +212,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
         /// <returns>The origin entity code.</returns>
         private EntityCode GetOriginEntityCode(IExternalSearchQueryResult<CompanyAutocompleteResult> resultItem)
         {
-            return new EntityCode(EntityType.Organization, this.GetCodeOrigin(), resultItem.Data.Domain);
+            return new EntityCode(Core.Data.EntityType.Organization, this.GetCodeOrigin(), resultItem.Data.Domain);
         }
 
         /// <summary>Gets the code origin.</summary>
@@ -225,7 +229,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
         {
             var code = this.GetOriginEntityCode(resultItem);
 
-            metadata.EntityType           = EntityType.Organization;
+            metadata.EntityType           = Core.Data.EntityType.Organization;
             metadata.Name                 = resultItem.Data.Name;
             metadata.OriginEntityCode     = code;
 
@@ -235,5 +239,13 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
             metadata.Properties[ClearBitVocabulary.Organization.Domain]     = resultItem.Data.Domain;
             metadata.Properties[ClearBitVocabulary.Organization.Logo]       = resultItem.Data.Logo;
         }
+
+        public string Icon { get; } = "Resources.clearbit.png";
+        public string Domain { get; } = "N/A";
+        public string About { get; } = "Clearbit is an enrichment service for company data.";
+        public AuthMethods AuthMethods { get; } = null;
+        public IEnumerable<Control> Properties { get; } = null;
+        public Guide Guide { get; } = null;
+        public IntegrationType Type { get; } = IntegrationType.Cloud;
     }
 }
