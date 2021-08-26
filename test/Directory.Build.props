@@ -13,5 +13,6 @@
     <PackageReference Include="xunit.runner.visualstudio"/>
     <PackageReference Include="Moq"/>
     <PackageReference Include="Shouldly"/>
+    <PackageReference Include="CluedIn.Testing.Base" />
   </ItemGroup>
 </Project>
