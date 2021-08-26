@@ -40,10 +40,10 @@
     <Compile Remove="Disabled_ClearBitIPExternalSearchProvider.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="Resources\clearbit.png" />
+    <None Remove="Resources\clearbit-vector-logo.svg" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\clearbit.png" />
+    <EmbeddedResource Include="Resources\clearbit-vector-logo.svg" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CluedIn.Core" />

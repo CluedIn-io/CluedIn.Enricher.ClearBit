@@ -240,7 +240,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
             metadata.Properties[ClearBitVocabulary.Organization.Logo]       = resultItem.Data.Logo;
         }
 
-        public string Icon { get; } = "Resources.clearbit.png";
+        public string Icon { get; } = "Resources.clearbit-vector-logo.svg";
         public string Domain { get; } = "N/A";
         public string About { get; } = "Clearbit is an enrichment service for company data.";
         public AuthMethods AuthMethods { get; } = null;
