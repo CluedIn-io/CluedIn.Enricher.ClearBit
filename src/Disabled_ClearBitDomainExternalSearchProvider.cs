@@ -118,7 +118,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
             if (string.IsNullOrEmpty(name))
                 yield break;
 
-            var sharedApiToken = ConfigurationManager.AppSettings["Providers.ExternalSearch.ClearBit.ApiToken"];
+            var sharedApiToken = ConfigurationManagerEx.AppSettings["Providers.ExternalSearch.ClearBit.ApiToken"];
 
             var client = new RestClient("https://person-stream.clearbit.com");
             var request = new RestRequest(string.Format("/v2/combined/find?email={0}", name), Method.GET);
