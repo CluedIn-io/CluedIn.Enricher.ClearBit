@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using CluedIn.Core;
 using CluedIn.Core.Data.Relational;
 using CluedIn.Core.Providers;
 
 namespace CluedIn.ExternalSearch.Providers.ClearBit
 {
-    public static class ClearBitConstants
+    public static class Constants
     {
         public const string ComponentName = "Clearbit";
         public const string ProviderName = "Clearbit";
-        public static readonly Guid ProviderId = Constants.ExternalSearchProviders.ClearBitId;
+        public static readonly Guid ProviderId = Core.Constants.ExternalSearchProviders.ClearBitId;
 
         public struct KeyName
         {

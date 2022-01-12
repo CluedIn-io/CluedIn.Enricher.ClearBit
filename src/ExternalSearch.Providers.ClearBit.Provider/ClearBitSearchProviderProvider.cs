@@ -11,6 +11,7 @@ using CluedIn.Core.Webhooks;
 using CluedIn.ExternalSearch;
 using CluedIn.ExternalSearch.Providers.ClearBit;
 using CluedIn.Providers.Models;
+using Constants = CluedIn.ExternalSearch.Providers.ClearBit.Constants;
 
 namespace CluedIn.Provider.ClearBit
 {
@@ -20,16 +21,16 @@ namespace CluedIn.Provider.ClearBit
 
         public ClearBitSearchProviderProvider([System.Diagnostics.CodeAnalysis.NotNull] ApplicationContext appContext) : base(appContext, GetMetaData())
         {
-            ExternalSearchProvider = appContext.Container.ResolveAll<IExternalSearchProvider>().Single(n => n.Id == ClearBitConstants.ProviderId);
+            ExternalSearchProvider = appContext.Container.ResolveAll<IExternalSearchProvider>().Single(n => n.Id == Constants.ProviderId);
         }
 
         private static IProviderMetadata GetMetaData()
         {
             return new ProviderMetadata
             {
-                Id = ClearBitConstants.ProviderId,
-                Name = ClearBitConstants.ProviderName,
-                ComponentName = ClearBitConstants.ComponentName,
+                Id = Constants.ProviderId,
+                Name = Constants.ProviderName,
+                ComponentName = Constants.ComponentName,
                 AuthTypes = new List<string>(),
                 SupportsConfiguration = true,
                 SupportsAutomaticWebhookCreation = false,
@@ -110,12 +111,12 @@ namespace CluedIn.Provider.ClearBit
             throw new NotImplementedException();
         }
 
-        public string Icon { get; } = ClearBitConstants.Icon;
-        public string Domain { get; } = ClearBitConstants.Domain;
-        public string About { get; } = ClearBitConstants.About;
-        public AuthMethods AuthMethods { get; } = ClearBitConstants.AuthMethods;
-        public IEnumerable<Control> Properties { get; } = ClearBitConstants.Properties;
-        public Guide Guide { get; } = ClearBitConstants.Guide;
-        public new IntegrationType Type { get; } = ClearBitConstants.IntegrationType;
+        public string Icon { get; } = Constants.Icon;
+        public string Domain { get; } = Constants.Domain;
+        public string About { get; } = Constants.About;
+        public AuthMethods AuthMethods { get; } = Constants.AuthMethods;
+        public IEnumerable<Control> Properties { get; } = Constants.Properties;
+        public Guide Guide { get; } = Constants.Guide;
+        public new IntegrationType Type { get; } = Constants.IntegrationType;
     }
 }

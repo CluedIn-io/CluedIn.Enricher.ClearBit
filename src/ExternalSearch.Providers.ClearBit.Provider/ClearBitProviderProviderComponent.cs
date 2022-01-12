@@ -5,10 +5,11 @@ using CluedIn.Core.Providers;
 using CluedIn.Core.Server;
 using CluedIn.ExternalSearch.Providers.ClearBit;
 using ComponentHost;
+using Constants = CluedIn.ExternalSearch.Providers.ClearBit.Constants;
 
 namespace CluedIn.Provider.ClearBit
 {
-    [Component(ClearBitConstants.ComponentName, "Providers", ComponentType.Service, ServerComponents.ProviderWebApi, Components.Server, Components.DataStores, Isolation = ComponentIsolation.NotIsolated)]
+    [Component(Constants.ComponentName, "Providers", ComponentType.Service, ServerComponents.ProviderWebApi, Components.Server, Components.DataStores, Isolation = ComponentIsolation.NotIsolated)]
     public sealed class ClearBitProviderProviderComponent : ServiceApplicationComponent<IServer>
     {
         /**********************************************************************************************************

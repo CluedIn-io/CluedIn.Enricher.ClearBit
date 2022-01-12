@@ -41,7 +41,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
             /// Initializes a new instance of the <see cref="ClearBitExternalSearchProvider" /> class.
             /// </summary>
         public ClearBitExternalSearchProvider()
-            : base(ExternalSearchProviderPriority.First, Constants.ExternalSearchProviders.ClearBitId, AcceptedEntityTypes)
+            : base(ExternalSearchProviderPriority.First, Core.Constants.ExternalSearchProviders.ClearBitId, AcceptedEntityTypes)
         {
         }
 
@@ -272,13 +272,13 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
             return GetPrimaryEntityPreviewImage(context, result, request);
         }
 
-        public string Icon { get; } = ClearBitConstants.Icon;
-        public string Domain { get; } = ClearBitConstants.Domain;
-        public string About { get; } = ClearBitConstants.About;
-        public AuthMethods AuthMethods { get; } = ClearBitConstants.AuthMethods;
-        public IEnumerable<Control> Properties { get; } = ClearBitConstants.Properties;
-        public Guide Guide { get; } = ClearBitConstants.Guide;
-        public IntegrationType Type { get; } = ClearBitConstants.IntegrationType;
+        public string Icon { get; } = Constants.Icon;
+        public string Domain { get; } = Constants.Domain;
+        public string About { get; } = Constants.About;
+        public AuthMethods AuthMethods { get; } = Constants.AuthMethods;
+        public IEnumerable<Control> Properties { get; } = Constants.Properties;
+        public Guide Guide { get; } = Constants.Guide;
+        public IntegrationType Type { get; } = Constants.IntegrationType;
         
     }
 }
