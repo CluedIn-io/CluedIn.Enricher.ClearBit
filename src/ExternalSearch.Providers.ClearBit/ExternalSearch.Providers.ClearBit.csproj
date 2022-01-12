@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <Compile Remove="Disabled_ClearBitDomainExternalSearchProvider.cs" />
+    <Compile Remove="Disabled_ClearBitEmployeeExternalSearchProvider.cs" />
+    <Compile Remove="Disabled_ClearBitIPExternalSearchProvider.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Resources\clearbit-vector-logo.svg" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\clearbit-vector-logo.svg" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="ComponentHost" />
+    <PackageReference Include="CluedIn.Core" />
+    <PackageReference Include="CluedIn.ExternalSearch" />
+    <PackageReference Include="CluedIn.Processing" />
+    <PackageReference Include="CluedIn.Processing.Web" />
+    <PackageReference Include="CluedIn.Processing.Web.TechnologyDetection" />
+  </ItemGroup>
+</Project>

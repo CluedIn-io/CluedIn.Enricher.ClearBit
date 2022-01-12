@@ -29,17 +29,19 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
 {
     /// <summary>The clear bit external search provider.</summary>
     /// <seealso cref="CluedIn.ExternalSearch.ExternalSearchProviderBase" />
-    public partial class ClearBitExternalSearchProvider : ExternalSearchProviderBase, IExternalSearchResultLogger, IExtendedEnricherMetadata
+    public partial class ClearBitExternalSearchProvider : ExternalSearchProviderBase, IExternalSearchResultLogger, IExtendedEnricherMetadata, IConfigurableExternalSearchProvider
     {
+        private static readonly EntityType[] AcceptedEntityTypes = { EntityType.Organization };
+
         /**********************************************************************************************************
          * CONSTRUCTORS
          **********************************************************************************************************/
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ClearBitExternalSearchProvider" /> class.
-        /// </summary>
+            /// <summary>
+            /// Initializes a new instance of the <see cref="ClearBitExternalSearchProvider" /> class.
+            /// </summary>
         public ClearBitExternalSearchProvider()
-            : base(ExternalSearchProviderPriority.First, Constants.ExternalSearchProviders.ClearBitId, EntityType.Organization)
+            : base(ExternalSearchProviderPriority.First, Constants.ExternalSearchProviders.ClearBitId, AcceptedEntityTypes)
         {
         }
 
@@ -240,12 +242,43 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
             metadata.Properties[ClearBitVocabulary.Organization.Logo]       = resultItem.Data.Logo;
         }
 
-        public string Icon { get; } = "Resources.clearbit-vector-logo.svg";
-        public string Domain { get; } = "N/A";
-        public string About { get; } = "Clearbit is an enrichment service for company data.";
-        public AuthMethods AuthMethods { get; } = null;
-        public IEnumerable<Control> Properties { get; } = null;
-        public Guide Guide { get; } = null;
-        public IntegrationType Type { get; } = IntegrationType.Cloud;
+        public IEnumerable<EntityType> Accepts(IDictionary<string, object> config, IProvider provider)
+        {
+            return AcceptedEntityTypes;
+        }
+
+        public IEnumerable<IExternalSearchQuery> BuildQueries(ExecutionContext context, IExternalSearchRequest request, IDictionary<string, object> config, IProvider provider)
+        {
+            return BuildQueries(context, request);
+        }
+
+        public IEnumerable<IExternalSearchQueryResult> ExecuteSearch(ExecutionContext context, IExternalSearchQuery query, IDictionary<string, object> config, IProvider provider)
+        {
+            return ExecuteSearch(context, query);
+        }
+
+        public IEnumerable<Clue> BuildClues(ExecutionContext context, IExternalSearchQuery query, IExternalSearchQueryResult result, IExternalSearchRequest request, IDictionary<string, object> config, IProvider provider)
+        {
+            return BuildClues(context, query, result, request);
+        }
+
+        public IEntityMetadata GetPrimaryEntityMetadata(ExecutionContext context, IExternalSearchQueryResult result, IExternalSearchRequest request, IDictionary<string, object> config, IProvider provider)
+        {
+            return GetPrimaryEntityMetadata(context, result, request);
+        }
+
+        public IPreviewImage GetPrimaryEntityPreviewImage(ExecutionContext context, IExternalSearchQueryResult result, IExternalSearchRequest request, IDictionary<string, object> config, IProvider provider)
+        {
+            return GetPrimaryEntityPreviewImage(context, result, request);
+        }
+
+        public string Icon { get; } = ClearBitConstants.Icon;
+        public string Domain { get; } = ClearBitConstants.Domain;
+        public string About { get; } = ClearBitConstants.About;
+        public AuthMethods AuthMethods { get; } = ClearBitConstants.AuthMethods;
+        public IEnumerable<Control> Properties { get; } = ClearBitConstants.Properties;
+        public Guide Guide { get; } = ClearBitConstants.Guide;
+        public IntegrationType Type { get; } = ClearBitConstants.IntegrationType;
+        
     }
 }
