@@ -11,12 +11,6 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
         public const string ProviderName = "Clearbit";
         public static readonly Guid ProviderId = Core.Constants.ExternalSearchProviders.ClearBitId;
 
-        public struct KeyName
-        {
-            public const string ApiToken = "apiToken";
-
-        }
-
         public static string About { get; set; } = "Clearbit is an enrichment service for company data.";
         public static string Icon { get; set; } =  "Resources.clearbit-vector-logo.svg";
         public static string Domain { get; set; } = "N/A";
@@ -24,15 +18,6 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
         public static AuthMethods AuthMethods { get; set; } = new AuthMethods
         {
             token = new List<Control>()
-            {
-                //new()
-                //{
-                //    displayName = "Api Key",
-                //    type = "input",
-                //    isRequired = true,
-                //    name = "apiKey"
-                //}
-            }
         };
 
         public static IEnumerable<Control> Properties { get; set; } = new List<Control>()
