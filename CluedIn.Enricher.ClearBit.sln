@@ -53,7 +53,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExternalSearch.ClearBit.Int
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExternalSearch.Providers.ClearBit", "src\ExternalSearch.Providers.ClearBit\ExternalSearch.Providers.ClearBit.csproj", "{DDADE014-92D6-4427-A40C-41D9EDFEDC23}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExternalSearch.Providers.ClearBit.Provider", "src\ExternalSearch.Providers.ClearBit.Provider\ExternalSearch.Providers.ClearBit.Provider.csproj", "{87615189-A75C-4CDD-89A3-712CBDD05ED4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Provider.ExternalSearch.ClearBit", "src\ExternalSearch.Providers.ClearBit.Provider\Provider.ExternalSearch.ClearBit.csproj", "{87615189-A75C-4CDD-89A3-712CBDD05ED4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
