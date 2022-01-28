@@ -30,9 +30,7 @@
         MUST SPECIFY IN CSPROJ AS <PackageReference Name="<depName>" />
     -->
     <PackageReference Update="ComponentHost" Version="$(_ComponentHost)" />
-	
     <PackageReference Update="CluedIn.Core" Version="$(_CluedIn)" />
-    
     <PackageReference Update="CluedIn.ExternalSearch" Version="$(_CluedIn)" />
     <PackageReference Update="CluedIn.Processing" Version="$(_CluedIn)" />
     <PackageReference Update="CluedIn.Processing.Web" Version="$(_CluedIn)" />
