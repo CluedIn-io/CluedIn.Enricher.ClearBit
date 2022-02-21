@@ -87,7 +87,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
             if (string.IsNullOrEmpty(name))
                 yield break;
 
-            var sharedApiToken = ConfigurationManager.AppSettings["Providers.ExternalSearch.ClearBit.ApiToken"];
+            var sharedApiToken = ConfigurationManagerEx.AppSettings["Providers.ExternalSearch.ClearBit.ApiToken"];
 
             var client = new RestClient("https://reveal.clearbit.com");
             var request = new RestRequest(string.Format("/v1/companies/find?ip={0}", name), Method.GET);

@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="CluedIn.Core" />
+    <PackageReference Include="ComponentHost" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ExternalSearch.Providers.ClearBit\ExternalSearch.Providers.ClearBit.csproj" />
+  </ItemGroup>
+
+</Project>
