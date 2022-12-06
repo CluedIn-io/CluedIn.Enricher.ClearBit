@@ -55,19 +55,63 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
         /// <returns>The search queries.</returns>
         public override IEnumerable<IExternalSearchQuery> BuildQueries(ExecutionContext context, IExternalSearchRequest request)
         {
-            if (!this.Accepts(request.EntityMetaData.EntityType))
+            foreach (var externalSearchQuery in InternalBuildQueries(context, request))
+            {
+                yield return externalSearchQuery;
+            }
+        }
+        private IEnumerable<IExternalSearchQuery> InternalBuildQueries(ExecutionContext context, IExternalSearchRequest request, IDictionary<string, object> config = null)
+        {
+            if (config.TryGetValue(Constants.KeyName.AcceptedEntityType, out var customType) && !string.IsNullOrWhiteSpace(customType.ToString()))
+            {
+                if (!request.EntityMetaData.EntityType.Is(customType.ToString()))
+                {
+                    yield break;
+                }
+            }
+            else if (!this.Accepts(request.EntityMetaData.EntityType))
+            {
                 yield break;
+            }
 
             var existingResults = request.GetQueryResults<CompanyAutocompleteResult>(this).ToList();
 
             Func<string, bool> domainFilter = value => existingResults.Any(r => string.Equals(r.Data.Domain, value, StringComparison.InvariantCultureIgnoreCase));
-            Func<string, bool> nameFilter   = value => OrganizationFilters.NameFilter(context, value);
+            Func<string, bool> nameFilter = value => OrganizationFilters.NameFilter(context, value);
 
             // Query Input
-            var entityType       = request.EntityMetaData.EntityType;
-            var website          = request.QueryParameters.GetValue(CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.Website, new HashSet<string>()).ToHashSetEx();
-            var organizationName = request.QueryParameters.GetValue(CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.OrganizationName, new HashSet<string>()).ToHashSetEx();
-            var emailDomainNames = request.QueryParameters.GetValue(CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.EmailDomainNames, new HashSet<string>()).ToHashSetEx();
+            var entityType = request.EntityMetaData.EntityType;
+            var website = new HashSet<string>();
+            var organizationName = new HashSet<string>();
+            var emailDomainNames = new HashSet<string>();
+
+
+            if (config.TryGetValue(Constants.KeyName.WebsiteKey, out var customVocabKeyWebsite) && !string.IsNullOrWhiteSpace(customVocabKeyWebsite.ToString()))
+            {
+                website = request.QueryParameters.GetValue<string, HashSet<string>>(config[Constants.KeyName.WebsiteKey].ToString(), new HashSet<string>());
+            }
+            else
+            {
+                website = request.QueryParameters.GetValue(CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.Website, new HashSet<string>()).ToHashSetEx();
+            }
+
+            if (config.TryGetValue(Constants.KeyName.OrgNameKey, out var customVocabKeyOrgName) && !string.IsNullOrWhiteSpace(customVocabKeyOrgName.ToString()))
+            {
+                organizationName = request.QueryParameters.GetValue<string, HashSet<string>>(config[Constants.KeyName.OrgNameKey].ToString(), new HashSet<string>());
+            }
+            else
+            {
+                organizationName = request.QueryParameters.GetValue(CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.OrganizationName, new HashSet<string>()).ToHashSetEx();
+            }
+
+            if (config.TryGetValue(Constants.KeyName.WebsiteKey, out var customVocabKeyEmailDomain) && !string.IsNullOrWhiteSpace(customVocabKeyEmailDomain.ToString()))
+            {
+                emailDomainNames = request.QueryParameters.GetValue<string, HashSet<string>>(config[Constants.KeyName.EmailDomainKey].ToString(), new HashSet<string>());
+            }
+            else
+            {
+                emailDomainNames = request.QueryParameters.GetValue(CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.EmailDomainNames, new HashSet<string>()).ToHashSetEx();
+            }
 
             emailDomainNames.AddRange(website.GetDomainNamesFromUris());
 
@@ -85,7 +129,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
                 foreach (var value in values)
                 {
                     Uri uri;
-                    
+
                     if (Uri.TryCreate(value, UriKind.Absolute, out uri))
                     {
                         if (!domainFilter(uri.Host))
@@ -103,7 +147,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
                 foreach (var value in values.Where(v => !domainFilter(v)))
                 {
                     Uri uri;
-                    
+
                     if (Uri.TryCreate(value, UriKind.Absolute, out uri))
                     {
                         if (!domainFilter(uri.Host))
@@ -124,7 +168,6 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
                     yield return new ExternalSearchQuery(this, entityType, ExternalSearchQueryParameter.Name, value);
             }
         }
-
         /// <summary>Executes the search.</summary>
         /// <param name="context">The context.</param>
         /// <param name="query">The query.</param>
@@ -249,7 +292,10 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
 
         public IEnumerable<IExternalSearchQuery> BuildQueries(ExecutionContext context, IExternalSearchRequest request, IDictionary<string, object> config, IProvider provider)
         {
-            return BuildQueries(context, request);
+            foreach (var externalSearchQuery in InternalBuildQueries(context, request, config))
+            {
+                yield return externalSearchQuery;
+            }
         }
 
         public IEnumerable<IExternalSearchQueryResult> ExecuteSearch(ExecutionContext context, IExternalSearchQuery query, IDictionary<string, object> config, IProvider provider)
