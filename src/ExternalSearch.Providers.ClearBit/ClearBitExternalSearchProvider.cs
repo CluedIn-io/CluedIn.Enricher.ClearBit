@@ -208,12 +208,12 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
         {
             var resultItem = result.As<CompanyAutocompleteResult>();
 
-            var code = this.GetOriginEntityCode(resultItem);
+            var code = this.GetOriginEntityCode(resultItem, request);
 
             var clue = new Clue(code, context.Organization);
             clue.Data.OriginProviderDefinitionId = this.Id;
 
-            this.PopulateMetadata(clue.Data.EntityData, resultItem);
+            this.PopulateMetadata(clue.Data.EntityData, resultItem, request);
             this.DownloadPreviewImage(context, resultItem.Data.Logo, clue);
 
             return new[] { clue };
@@ -227,7 +227,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
         public override IEntityMetadata GetPrimaryEntityMetadata(ExecutionContext context, IExternalSearchQueryResult result, IExternalSearchRequest request)
         {
             var resultItem = result.As<CompanyAutocompleteResult>();
-            return this.CreateMetadata(resultItem);
+            return this.CreateMetadata(resultItem, request);
         }
 
         /// <summary>Gets the preview image.</summary>
@@ -243,11 +243,11 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
         /// <summary>Creates the metadata.</summary>
         /// <param name="resultItem">The result item.</param>
         /// <returns>The metadata.</returns>
-        private IEntityMetadata CreateMetadata(IExternalSearchQueryResult<CompanyAutocompleteResult> resultItem)
+        private IEntityMetadata CreateMetadata(IExternalSearchQueryResult<CompanyAutocompleteResult> resultItem, IExternalSearchRequest request)
         {
             var metadata = new EntityMetadataPart();
 
-            this.PopulateMetadata(metadata, resultItem);
+            this.PopulateMetadata(metadata, resultItem, request);
 
             return metadata;
         }
@@ -255,9 +255,9 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
         /// <summary>Gets the origin entity code.</summary>
         /// <param name="resultItem">The result item.</param>
         /// <returns>The origin entity code.</returns>
-        private EntityCode GetOriginEntityCode(IExternalSearchQueryResult<CompanyAutocompleteResult> resultItem)
+        private EntityCode GetOriginEntityCode(IExternalSearchQueryResult<CompanyAutocompleteResult> resultItem, IExternalSearchRequest request)
         {
-            return new EntityCode(Core.Data.EntityType.Organization, this.GetCodeOrigin(), resultItem.Data.Domain);
+            return new EntityCode(request.EntityMetaData.EntityType, this.GetCodeOrigin(), request.EntityMetaData.OriginEntityCode.Value);
         }
 
         /// <summary>Gets the code origin.</summary>
@@ -270,16 +270,15 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
         /// <summary>Populates the metadata.</summary>
         /// <param name="metadata">The metadata.</param>
         /// <param name="resultItem">The result item.</param>
-        private void PopulateMetadata(IEntityMetadata metadata, IExternalSearchQueryResult<CompanyAutocompleteResult> resultItem)
+        private void PopulateMetadata(IEntityMetadata metadata, IExternalSearchQueryResult<CompanyAutocompleteResult> resultItem, IExternalSearchRequest request)
         {
-            var code = this.GetOriginEntityCode(resultItem);
+            var code = this.GetOriginEntityCode(resultItem, request);
 
-            metadata.EntityType           = Core.Data.EntityType.Organization;
-            metadata.Name                 = resultItem.Data.Name;
+            metadata.EntityType           = request.EntityMetaData.EntityType;
+            metadata.Name                 = request.EntityMetaData.Name;
             metadata.OriginEntityCode     = code;
 
             metadata.Codes.Add(code);
-            metadata.Codes.Add(new EntityCode(EntityType.Organization, CodeOrigin.CluedIn.CreateSpecific("website"), resultItem.Data.Domain));
 
             metadata.Properties[ClearBitVocabulary.Organization.Domain]     = resultItem.Data.Domain;
             metadata.Properties[ClearBitVocabulary.Organization.Logo]       = resultItem.Data.Logo;
