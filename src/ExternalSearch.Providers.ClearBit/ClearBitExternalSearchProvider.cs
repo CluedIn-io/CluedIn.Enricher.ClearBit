@@ -86,7 +86,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
             var emailDomainNames = new HashSet<string>();
 
 
-            if (config.TryGetValue(Constants.KeyName.WebsiteKey, out var customVocabKeyWebsite) && !string.IsNullOrWhiteSpace(customVocabKeyWebsite.ToString()))
+            if (config.TryGetValue(Constants.KeyName.WebsiteKey, out var customVocabKeyWebsite) && !string.IsNullOrWhiteSpace(customVocabKeyWebsite?.ToString()))
             {
                 website = request.QueryParameters.GetValue<string, HashSet<string>>(config[Constants.KeyName.WebsiteKey].ToString(), new HashSet<string>());
             }
@@ -95,7 +95,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
                 website = request.QueryParameters.GetValue(CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.Website, new HashSet<string>()).ToHashSetEx();
             }
 
-            if (config.TryGetValue(Constants.KeyName.OrgNameKey, out var customVocabKeyOrgName) && !string.IsNullOrWhiteSpace(customVocabKeyOrgName.ToString()))
+            if (config.TryGetValue(Constants.KeyName.OrgNameKey, out var customVocabKeyOrgName) && !string.IsNullOrWhiteSpace(customVocabKeyOrgName?.ToString()))
             {
                 organizationName = request.QueryParameters.GetValue<string, HashSet<string>>(config[Constants.KeyName.OrgNameKey].ToString(), new HashSet<string>());
             }
@@ -104,7 +104,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
                 organizationName = request.QueryParameters.GetValue(CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.OrganizationName, new HashSet<string>()).ToHashSetEx();
             }
 
-            if (config.TryGetValue(Constants.KeyName.WebsiteKey, out var customVocabKeyEmailDomain) && !string.IsNullOrWhiteSpace(customVocabKeyEmailDomain.ToString()))
+            if (config.TryGetValue(Constants.KeyName.WebsiteKey, out var customVocabKeyEmailDomain) && !string.IsNullOrWhiteSpace(customVocabKeyEmailDomain?.ToString()))
             {
                 emailDomainNames = request.QueryParameters.GetValue<string, HashSet<string>>(config[Constants.KeyName.EmailDomainKey].ToString(), new HashSet<string>());
             }
