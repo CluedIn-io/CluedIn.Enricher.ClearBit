@@ -287,6 +287,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
             metadata.OriginEntityCode     = code;
 
             metadata.Codes.Add(code);
+            metadata.Codes.Add(request.EntityMetaData.OriginEntityCode);
 
             metadata.Properties[ClearBitVocabulary.Organization.Domain]     = resultItem.Data.Domain;
             metadata.Properties[ClearBitVocabulary.Organization.Logo]       = resultItem.Data.Logo;
