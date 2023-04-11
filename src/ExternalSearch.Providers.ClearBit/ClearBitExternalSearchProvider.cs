@@ -104,7 +104,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
                 organizationName = request.QueryParameters.GetValue(CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.OrganizationName, new HashSet<string>()).ToHashSetEx();
             }
 
-            if (config.TryGetValue(Constants.KeyName.WebsiteKey, out var customVocabKeyEmailDomain) && !string.IsNullOrWhiteSpace(customVocabKeyEmailDomain?.ToString()))
+            if (config.TryGetValue(Constants.KeyName.EmailDomainKey, out var customVocabKeyEmailDomain) && !string.IsNullOrWhiteSpace(customVocabKeyEmailDomain?.ToString()))
             {
                 emailDomainNames = request.QueryParameters.GetValue<string, HashSet<string>>(config[Constants.KeyName.EmailDomainKey].ToString(), new HashSet<string>());
             }
