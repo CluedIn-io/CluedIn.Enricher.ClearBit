@@ -188,7 +188,10 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 foreach (var result in response.Data)
+                {
                     yield return new ExternalSearchQueryResult<CompanyAutocompleteResult>(query, result);
+                    yield break;
+                }
             }
             else if (response.StatusCode == HttpStatusCode.NoContent || response.StatusCode == HttpStatusCode.NotFound)
                 yield break;
