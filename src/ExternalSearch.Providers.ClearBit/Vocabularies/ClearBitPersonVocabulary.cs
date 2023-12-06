@@ -84,16 +84,6 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit.Vocabularies
             this.TwitterSite = this.Add(new VocabularyKey("twitterSite"));
             this.TwitterStatuses = this.Add(new VocabularyKey("twitterStatuses"));
 
-            this.AddMapping(this.City, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInUser.HomeAddressCity);
-            this.AddMapping(this.CountryCode, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInUser.HomeAddressCountryCode);
-            this.AddMapping(this.Email, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInUser.Email);
-            this.AddMapping(this.FirstName, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInUser.FirstName);
-            this.AddMapping(this.Gender, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInUser.Gender);
-            this.AddMapping(this.LastName, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInUser.LastName);
-            this.AddMapping(this.State, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInUser.HomeAddressState);
-            this.AddMapping(this.TimeZone, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInUser.TimeZone);
-
-            this.AddMapping(this.Domain, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.Website);
         }
 
         public VocabularyKey Domain { get; protected set; }

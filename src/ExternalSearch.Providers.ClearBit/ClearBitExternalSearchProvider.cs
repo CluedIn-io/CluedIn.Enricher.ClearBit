@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ClearBitExternalSearchProvider.cs" company="Clued In">
 //   Copyright Clued In
 // </copyright>
@@ -55,19 +55,63 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
         /// <returns>The search queries.</returns>
         public override IEnumerable<IExternalSearchQuery> BuildQueries(ExecutionContext context, IExternalSearchRequest request)
         {
-            if (!this.Accepts(request.EntityMetaData.EntityType))
+            foreach (var externalSearchQuery in InternalBuildQueries(context, request))
+            {
+                yield return externalSearchQuery;
+            }
+        }
+        private IEnumerable<IExternalSearchQuery> InternalBuildQueries(ExecutionContext context, IExternalSearchRequest request, IDictionary<string, object> config = null)
+        {
+            if (config.TryGetValue(Constants.KeyName.AcceptedEntityType, out var customType) && !string.IsNullOrWhiteSpace(customType.ToString()))
+            {
+                if (!request.EntityMetaData.EntityType.Is(customType.ToString()))
+                {
+                    yield break;
+                }
+            }
+            else if (!this.Accepts(request.EntityMetaData.EntityType))
+            {
                 yield break;
+            }
 
             var existingResults = request.GetQueryResults<CompanyAutocompleteResult>(this).ToList();
 
             Func<string, bool> domainFilter = value => existingResults.Any(r => string.Equals(r.Data.Domain, value, StringComparison.InvariantCultureIgnoreCase));
-            Func<string, bool> nameFilter   = value => OrganizationFilters.NameFilter(context, value);
+            Func<string, bool> nameFilter = value => OrganizationFilters.NameFilter(context, value);
 
             // Query Input
-            var entityType       = request.EntityMetaData.EntityType;
-            var website          = request.QueryParameters.GetValue(CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.Website, new HashSet<string>()).ToHashSet();
-            var organizationName = request.QueryParameters.GetValue(CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.OrganizationName, new HashSet<string>()).ToHashSet();
-            var emailDomainNames = request.QueryParameters.GetValue(CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.EmailDomainNames, new HashSet<string>()).ToHashSet();
+            var entityType = request.EntityMetaData.EntityType;
+            var website = new HashSet<string>();
+            var organizationName = new HashSet<string>();
+            var emailDomainNames = new HashSet<string>();
+
+
+            if (config.TryGetValue(Constants.KeyName.WebsiteKey, out var customVocabKeyWebsite) && !string.IsNullOrWhiteSpace(customVocabKeyWebsite?.ToString()))
+            {
+                website = request.QueryParameters.GetValue<string, HashSet<string>>(config[Constants.KeyName.WebsiteKey].ToString(), new HashSet<string>());
+            }
+            else
+            {
+                website          = request.QueryParameters.GetValue(CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.Website, new HashSet<string>()).ToHashSet();
+            }
+
+            if (config.TryGetValue(Constants.KeyName.OrgNameKey, out var customVocabKeyOrgName) && !string.IsNullOrWhiteSpace(customVocabKeyOrgName?.ToString()))
+            {
+                organizationName = request.QueryParameters.GetValue<string, HashSet<string>>(config[Constants.KeyName.OrgNameKey].ToString(), new HashSet<string>());
+            }
+            else
+            {
+                organizationName = request.QueryParameters.GetValue(CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.OrganizationName, new HashSet<string>()).ToHashSet();
+            }
+
+            if (config.TryGetValue(Constants.KeyName.EmailDomainKey, out var customVocabKeyEmailDomain) && !string.IsNullOrWhiteSpace(customVocabKeyEmailDomain?.ToString()))
+            {
+                emailDomainNames = request.QueryParameters.GetValue<string, HashSet<string>>(config[Constants.KeyName.EmailDomainKey].ToString(), new HashSet<string>());
+            }
+            else
+            {
+                emailDomainNames = request.QueryParameters.GetValue(CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.EmailDomainNames, new HashSet<string>()).ToHashSet();
+            }
 
             emailDomainNames.AddRange(website.GetDomainNamesFromUris());
 
@@ -85,7 +129,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
                 foreach (var value in values)
                 {
                     Uri uri;
-                    
+
                     if (Uri.TryCreate(value, UriKind.Absolute, out uri))
                     {
                         if (!domainFilter(uri.Host))
@@ -103,7 +147,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
                 foreach (var value in values.Where(v => !domainFilter(v)))
                 {
                     Uri uri;
-                    
+
                     if (Uri.TryCreate(value, UriKind.Absolute, out uri))
                     {
                         if (!domainFilter(uri.Host))
@@ -124,7 +168,6 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
                     yield return new ExternalSearchQuery(this, entityType, ExternalSearchQueryParameter.Name, value);
             }
         }
-
         /// <summary>Executes the search.</summary>
         /// <param name="context">The context.</param>
         /// <param name="query">The query.</param>
@@ -144,8 +187,16 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                foreach (var result in response.Data)
+                foreach (var result in response.Data.Where(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
+                {
                     yield return new ExternalSearchQueryResult<CompanyAutocompleteResult>(query, result);
+                    yield break;
+                }
+                foreach (var result in response.Data)
+                {
+                    yield return new ExternalSearchQueryResult<CompanyAutocompleteResult>(query, result);
+                    yield break;
+                }
             }
             else if (response.StatusCode == HttpStatusCode.NoContent || response.StatusCode == HttpStatusCode.NotFound)
                 yield break;
@@ -165,12 +216,12 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
         {
             var resultItem = result.As<CompanyAutocompleteResult>();
 
-            var code = this.GetOriginEntityCode(resultItem);
+            var code = this.GetOriginEntityCode(resultItem, request);
 
             var clue = new Clue(code, context.Organization);
             clue.Data.OriginProviderDefinitionId = this.Id;
 
-            this.PopulateMetadata(clue.Data.EntityData, resultItem);
+            this.PopulateMetadata(clue.Data.EntityData, resultItem, request);
             this.DownloadPreviewImage(context, resultItem.Data.Logo, clue);
 
             return new[] { clue };
@@ -184,7 +235,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
         public override IEntityMetadata GetPrimaryEntityMetadata(ExecutionContext context, IExternalSearchQueryResult result, IExternalSearchRequest request)
         {
             var resultItem = result.As<CompanyAutocompleteResult>();
-            return this.CreateMetadata(resultItem);
+            return this.CreateMetadata(resultItem, request);
         }
 
         /// <summary>Gets the preview image.</summary>
@@ -200,11 +251,11 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
         /// <summary>Creates the metadata.</summary>
         /// <param name="resultItem">The result item.</param>
         /// <returns>The metadata.</returns>
-        private IEntityMetadata CreateMetadata(IExternalSearchQueryResult<CompanyAutocompleteResult> resultItem)
+        private IEntityMetadata CreateMetadata(IExternalSearchQueryResult<CompanyAutocompleteResult> resultItem, IExternalSearchRequest request)
         {
             var metadata = new EntityMetadataPart();
 
-            this.PopulateMetadata(metadata, resultItem);
+            this.PopulateMetadata(metadata, resultItem, request);
 
             return metadata;
         }
@@ -212,9 +263,9 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
         /// <summary>Gets the origin entity code.</summary>
         /// <param name="resultItem">The result item.</param>
         /// <returns>The origin entity code.</returns>
-        private EntityCode GetOriginEntityCode(IExternalSearchQueryResult<CompanyAutocompleteResult> resultItem)
+        private EntityCode GetOriginEntityCode(IExternalSearchQueryResult<CompanyAutocompleteResult> resultItem, IExternalSearchRequest request)
         {
-            return new EntityCode(Core.Data.EntityType.Organization, this.GetCodeOrigin(), resultItem.Data.Domain);
+            return new EntityCode(request.EntityMetaData.EntityType, this.GetCodeOrigin(), request.EntityMetaData.OriginEntityCode.Value);
         }
 
         /// <summary>Gets the code origin.</summary>
@@ -227,16 +278,16 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
         /// <summary>Populates the metadata.</summary>
         /// <param name="metadata">The metadata.</param>
         /// <param name="resultItem">The result item.</param>
-        private void PopulateMetadata(IEntityMetadata metadata, IExternalSearchQueryResult<CompanyAutocompleteResult> resultItem)
+        private void PopulateMetadata(IEntityMetadata metadata, IExternalSearchQueryResult<CompanyAutocompleteResult> resultItem, IExternalSearchRequest request)
         {
-            var code = this.GetOriginEntityCode(resultItem);
+            var code = this.GetOriginEntityCode(resultItem, request);
 
-            metadata.EntityType           = Core.Data.EntityType.Organization;
-            metadata.Name                 = resultItem.Data.Name;
+            metadata.EntityType           = request.EntityMetaData.EntityType;
+            metadata.Name                 = request.EntityMetaData.Name;
             metadata.OriginEntityCode     = code;
 
             metadata.Codes.Add(code);
-            metadata.Codes.Add(new EntityCode(EntityType.Organization, CodeOrigin.CluedIn.CreateSpecific("website"), resultItem.Data.Domain));
+            metadata.Codes.Add(request.EntityMetaData.OriginEntityCode);
 
             metadata.Properties[ClearBitVocabulary.Organization.Domain]     = resultItem.Data.Domain;
             metadata.Properties[ClearBitVocabulary.Organization.Logo]       = resultItem.Data.Logo;
@@ -249,7 +300,10 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
 
         public IEnumerable<IExternalSearchQuery> BuildQueries(ExecutionContext context, IExternalSearchRequest request, IDictionary<string, object> config, IProvider provider)
         {
-            return BuildQueries(context, request);
+            foreach (var externalSearchQuery in InternalBuildQueries(context, request, config))
+            {
+                yield return externalSearchQuery;
+            }
         }
 
         public IEnumerable<IExternalSearchQueryResult> ExecuteSearch(ExecutionContext context, IExternalSearchQuery query, IDictionary<string, object> config, IProvider provider)
