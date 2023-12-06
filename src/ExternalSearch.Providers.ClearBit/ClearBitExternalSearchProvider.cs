@@ -92,7 +92,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
             }
             else
             {
-                website = request.QueryParameters.GetValue(CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.Website, new HashSet<string>()).ToHashSetEx();
+                website          = request.QueryParameters.GetValue(CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.Website, new HashSet<string>()).ToHashSet();
             }
 
             if (config.TryGetValue(Constants.KeyName.OrgNameKey, out var customVocabKeyOrgName) && !string.IsNullOrWhiteSpace(customVocabKeyOrgName?.ToString()))
@@ -101,7 +101,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
             }
             else
             {
-                organizationName = request.QueryParameters.GetValue(CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.OrganizationName, new HashSet<string>()).ToHashSetEx();
+                organizationName = request.QueryParameters.GetValue(CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.OrganizationName, new HashSet<string>()).ToHashSet();
             }
 
             if (config.TryGetValue(Constants.KeyName.EmailDomainKey, out var customVocabKeyEmailDomain) && !string.IsNullOrWhiteSpace(customVocabKeyEmailDomain?.ToString()))
@@ -110,7 +110,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
             }
             else
             {
-                emailDomainNames = request.QueryParameters.GetValue(CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.EmailDomainNames, new HashSet<string>()).ToHashSetEx();
+                emailDomainNames = request.QueryParameters.GetValue(CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.EmailDomainNames, new HashSet<string>()).ToHashSet();
             }
 
             emailDomainNames.AddRange(website.GetDomainNamesFromUris());
@@ -142,7 +142,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
 
             if (emailDomainNames.Any())
             {
-                var values = emailDomainNames.SelectMany(v => v.Split(new[] { ",", ";", "|" }, StringSplitOptions.RemoveEmptyEntries)).Select(v => v.ToLowerInvariant()).ToHashSetEx();
+                var values = emailDomainNames.SelectMany(v => v.Split(new[] { ",", ";", "|" }, StringSplitOptions.RemoveEmptyEntries)).Select(v => v.ToLowerInvariant()).ToHashSet();
 
                 foreach (var value in values.Where(v => !domainFilter(v)))
                 {
@@ -162,7 +162,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
             {
                 var values = organizationName.GetOrganizationNameVariants()
                                              .Select(NameNormalization.Normalize)
-                                             .ToHashSetEx();
+                                             .ToHashSet();
 
                 foreach (var value in values.Where(v => !nameFilter(v)))
                     yield return new ExternalSearchQuery(this, entityType, ExternalSearchQueryParameter.Name, value);
