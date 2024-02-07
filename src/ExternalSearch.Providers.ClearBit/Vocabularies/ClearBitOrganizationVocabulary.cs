@@ -29,7 +29,6 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit.Vocabularies
             this.Domain         = this.Add(new VocabularyKey("domain", VocabularyKeyDataType.Uri));
             this.Logo           = this.Add(new VocabularyKey("logo", VocabularyKeyDataType.Uri, VocabularyKeyVisibility.Hidden));
 
-            this.AddMapping(this.Domain, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.Website);
         }
 
         public VocabularyKey Domain { get; protected set; }
