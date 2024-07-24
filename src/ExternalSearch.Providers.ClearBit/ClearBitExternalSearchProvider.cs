@@ -63,10 +63,8 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
 
         private IEnumerable<IExternalSearchQuery> InternalBuildQueries(ExecutionContext context, IExternalSearchRequest request, IDictionary<string, object> config)
         {
-            if (!Accepts(config).Contains(request.EntityMetaData.EntityType))
-            {
+            if (!Accepts(config, request.EntityMetaData.EntityType))
                 yield break;
-            }
 
             var existingResults = request.GetQueryResults<CompanyAutocompleteResult>(this).ToList();
 
@@ -220,6 +218,13 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
 
             // Fallback to default accepted entity types
             return DefaultAcceptedEntityTypes;
+        }
+
+        private bool Accepts(IDictionary<string, object> config, EntityType entityTypeToEvaluate)
+        {
+            var configurableAcceptedEntityTypes = this.Accepts(config).ToArray();
+
+            return configurableAcceptedEntityTypes.Any(entityTypeToEvaluate.Is);
         }
 
         public IEnumerable<IExternalSearchQuery> BuildQueries(ExecutionContext context, IExternalSearchRequest request, IDictionary<string, object> config, IProvider provider)
