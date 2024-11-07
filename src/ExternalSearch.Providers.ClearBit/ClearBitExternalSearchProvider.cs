@@ -173,34 +173,14 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
             return metadata;
         }
 
-        /// <summary>Gets the origin entity code.</summary>
-        /// <param name="resultItem">The result item.</param>
-        /// <returns>The origin entity code.</returns>
-        private EntityCode GetOriginEntityCode(IExternalSearchQueryResult<CompanyAutocompleteResult> resultItem, IExternalSearchRequest request)
-        {
-            return new EntityCode(request.EntityMetaData.EntityType, this.GetCodeOrigin(), request.EntityMetaData.OriginEntityCode.Value);
-        }
-
-        /// <summary>Gets the code origin.</summary>
-        /// <returns>The code origin</returns>
-        private CodeOrigin GetCodeOrigin()
-        {
-            return CodeOrigin.CluedIn.CreateSpecific("clearBit");
-        }
-
         /// <summary>Populates the metadata.</summary>
         /// <param name="metadata">The metadata.</param>
         /// <param name="resultItem">The result item.</param>
         private void PopulateMetadata(IEntityMetadata metadata, IExternalSearchQueryResult<CompanyAutocompleteResult> resultItem, IExternalSearchRequest request)
         {
-            var code = this.GetOriginEntityCode(resultItem, request);
-
             metadata.EntityType = request.EntityMetaData.EntityType;
             metadata.Name = request.EntityMetaData.Name;
-            metadata.OriginEntityCode = code;
-
-            metadata.Codes.Add(code);
-            metadata.Codes.Add(request.EntityMetaData.OriginEntityCode);
+            metadata.OriginEntityCode = request.EntityMetaData.OriginEntityCode;
 
             metadata.Properties[ClearBitVocabulary.Organization.Domain] = resultItem.Data.Domain;
             metadata.Properties[ClearBitVocabulary.Organization.Logo] = resultItem.Data.Logo;
@@ -273,9 +253,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
         {
             var resultItem = result.As<CompanyAutocompleteResult>();
 
-            var code = this.GetOriginEntityCode(resultItem, request);
-
-            var clue = new Clue(code, context.Organization);
+            var clue = new Clue(request.EntityMetaData.OriginEntityCode, context.Organization);
             clue.Data.OriginProviderDefinitionId = this.Id;
 
             this.PopulateMetadata(clue.Data.EntityData, resultItem, request);
