@@ -10,6 +10,31 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
         public const string ComponentName = "Clearbit";
         public const string ProviderName = "Clearbit";
         public static readonly Guid ProviderId = Core.Constants.ExternalSearchProviders.ClearBitId;
+        public const string Instruction = """
+            [
+              {
+                "type": "bulleted-list",
+                "children": [
+                  {
+                    "type": "list-item",
+                    "children": [
+                      {
+                        "text": "Add the entity type to specify the golden records you want to enrich. Only golden records belonging to that entity type will be enriched."
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list-item",
+                    "children": [
+                      {
+                        "text": "Add the vocabulary keys to provide the input for the enricher to search for additional information. For example, if you provide the website vocabulary key for the Web enricher, it will use specific websites to look for information about companies. In some cases, vocabulary keys are not required. If you don't add them, the enricher will use default vocabulary keys."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+            """;
 
         public struct KeyName
         {
@@ -25,35 +50,39 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
 
         public static AuthMethods AuthMethods { get; set; } = new AuthMethods
         {
-            token = new List<Control>()
+            Token = new List<Control>()
             {
                 new Control()
                 {
-                    displayName = "Accepted Entity Type",
-                    type = "input",
-                    isRequired = true,
-                    name = KeyName.AcceptedEntityType
+                    DisplayName = "Accepted Entity Type",
+                    Type = "entityTypeSelector",
+                    IsRequired = true,
+                    Name = KeyName.AcceptedEntityType,
+                    Help = "The entity type that defines the golden records you want to enrich (e.g., /Organization)."
                 },
                 new Control()
                 {
-                    displayName = "Website vocab key",
-                    type = "input",
-                    isRequired = false,
-                    name = KeyName.WebsiteKey
+                    DisplayName = "Website Vocabulary Key",
+                    Type = "vocabularyKeySelector",
+                    IsRequired = false,
+                    Name = KeyName.WebsiteKey,
+                    Help = "The vocabulary key that contains the websites of companies you want to enrich (e.g., organization.website)."
                 },
                 new Control()
                 {
-                    displayName = "Organization Name vocab key",
-                    type = "input",
-                    isRequired = false,
-                    name = KeyName.OrgNameKey
+                    DisplayName = "Organization Name Vocabulary Key",
+                    Type = "vocabularyKeySelector",
+                    IsRequired = false,
+                    Name = KeyName.OrgNameKey,
+                    Help = "The vocabulary key that contains the names of companies you want to enrich (e.g., organization.name)."
                 },
                 new Control()
                 {
-                    displayName = "Email Domain vocab key",
-                    type = "input",
-                    isRequired = false,
-                    name = KeyName.EmailDomainKey
+                    DisplayName = "Email Domain Vocabulary Key",
+                    Type = "vocabularyKeySelector",
+                    IsRequired = false,
+                    Name = KeyName.EmailDomainKey,
+                    Help = "The vocabulary key that contains the email domains of companies you want to enrich (e.g., organization.domain)."
                 }
             }
         };
@@ -70,7 +99,10 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
             //}
         };
 
-        public static Guide Guide { get; set; } = null;
+        public static Guide Guide { get; set; } = new Guide
+        {
+            Instructions = Instruction
+        };
         public static IntegrationType IntegrationType { get; set; } = IntegrationType.Enrichment;
     }
 }
