@@ -179,9 +179,12 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
         /// <param name="resultItem">The result item.</param>
         private void PopulateMetadata(IEntityMetadata metadata, IExternalSearchQueryResult<CompanyAutocompleteResult> resultItem, IExternalSearchRequest request)
         {
+            var code = new EntityCode(request.EntityMetaData.OriginEntityCode.Type, "clearBit", $"{request.Queries.FirstOrDefault()?.QueryKey}{request.EntityMetaData.OriginEntityCode}".ToDeterministicGuid());
+
             metadata.EntityType = request.EntityMetaData.EntityType;
             metadata.Name = request.EntityMetaData.Name;
-            metadata.OriginEntityCode = request.EntityMetaData.OriginEntityCode;
+            metadata.OriginEntityCode = code;
+            metadata.Codes.Add(request.EntityMetaData.OriginEntityCode);
 
             metadata.Properties[ClearBitVocabulary.Organization.Domain] = resultItem.Data.Domain;
             metadata.Properties[ClearBitVocabulary.Organization.Logo] = resultItem.Data.Logo;
@@ -277,9 +280,9 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
         public IEnumerable<Clue> BuildClues(ExecutionContext context, IExternalSearchQuery query, IExternalSearchQueryResult result, IExternalSearchRequest request, IDictionary<string, object> config, IProvider provider)
         {
             var resultItem = result.As<CompanyAutocompleteResult>();
+            var code = new EntityCode(request.EntityMetaData.OriginEntityCode.Type, "clearBit", $"{query.QueryKey}{request.EntityMetaData.OriginEntityCode}".ToDeterministicGuid());
 
-            var clue = new Clue(request.EntityMetaData.OriginEntityCode, context.Organization);
-            clue.Data.OriginProviderDefinitionId = this.Id;
+            var clue = new Clue(code, context.Organization) { Data = { OriginProviderDefinitionId = this.Id } };
 
             this.PopulateMetadata(clue.Data.EntityData, resultItem, request);
             this.DownloadPreviewImage(context, resultItem.Data.Logo, clue);
