@@ -184,6 +184,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
             metadata.EntityType = request.EntityMetaData.EntityType;
             metadata.Name = request.EntityMetaData.Name;
             metadata.OriginEntityCode = code;
+            metadata.Codes.Add(request.EntityMetaData.OriginEntityCode);
 
             metadata.Properties[ClearBitVocabulary.Organization.Domain] = resultItem.Data.Domain;
             metadata.Properties[ClearBitVocabulary.Organization.Logo] = resultItem.Data.Logo;
@@ -281,9 +282,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
             var resultItem = result.As<CompanyAutocompleteResult>();
             var code = new EntityCode(request.EntityMetaData.OriginEntityCode.Type, "clearBit", $"{query.QueryKey}{request.EntityMetaData.OriginEntityCode}".ToDeterministicGuid());
 
-            var clue = new Clue(code, context.Organization);
-            clue.Data.EntityData.Codes.Add(request.EntityMetaData.OriginEntityCode);
-            clue.Data.OriginProviderDefinitionId = this.Id;
+            var clue = new Clue(code, context.Organization) { Data = { OriginProviderDefinitionId = this.Id } };
 
             this.PopulateMetadata(clue.Data.EntityData, resultItem, request);
             this.DownloadPreviewImage(context, resultItem.Data.Logo, clue);
