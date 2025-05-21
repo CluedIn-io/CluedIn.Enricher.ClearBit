@@ -10,7 +10,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
         public const string ComponentName = "Clearbit";
         public const string ProviderName = "Clearbit";
         public static readonly Guid ProviderId = Core.Constants.ExternalSearchProviders.ClearBitId;
-        public const string Instruction = """
+        public static readonly string Instruction = $$"""
             [
               {
                 "type": "bulleted-list",
@@ -19,7 +19,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
                     "type": "list-item",
                     "children": [
                       {
-                        "text": "Add the entity type to specify the golden records you want to enrich. Only golden records belonging to that entity type will be enriched."
+                        "text": "Add the {{EntityTypeLabel.ToLower()}} to specify the golden records you want to enrich. Only golden records belonging to that {{EntityTypeLabel.ToLower()}} will be enriched."
                       }
                     ]
                   },
@@ -48,17 +48,21 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
         public static string Icon { get; set; } = "Resources.clearbit-vector-logo.svg";
         public static string Domain { get; set; } = "N/A";
 
+        private static Version _cluedInVersion;
+        public static Version CluedInVersion => _cluedInVersion ??= typeof(Core.Constants).Assembly.GetName().Version;
+        public static string EntityTypeLabel => CluedInVersion < new Version(4, 5, 0) ? "Entity Type" : "Business Domain";
+
         public static AuthMethods AuthMethods { get; set; } = new AuthMethods
         {
             Token = new List<Control>()
             {
                 new Control()
                 {
-                    DisplayName = "Accepted Entity Type",
+                    DisplayName = $"Accepted {EntityTypeLabel}",
                     Type = "entityTypeSelector",
                     IsRequired = true,
                     Name = KeyName.AcceptedEntityType,
-                    Help = "The entity type that defines the golden records you want to enrich (e.g., /Organization)."
+                    Help = $"The {EntityTypeLabel.ToLower()} that defines the golden records you want to enrich (e.g., /Organization)."
                 },
                 new Control()
                 {

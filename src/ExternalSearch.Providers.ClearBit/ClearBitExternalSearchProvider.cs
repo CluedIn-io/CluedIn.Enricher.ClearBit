@@ -11,8 +11,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-
+using System.Text.RegularExpressions;
 using CluedIn.Core;
+using CluedIn.Core.Connectors;
 using CluedIn.Core.Data;
 using CluedIn.Core.Data.Parts;
 using CluedIn.Core.Data.Relational;
@@ -29,7 +30,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
 {
     /// <summary>The clear bit external search provider.</summary>
     /// <seealso cref="CluedIn.ExternalSearch.ExternalSearchProviderBase" />
-    public partial class ClearBitExternalSearchProvider : ExternalSearchProviderBase, IExternalSearchResultLogger, IExtendedEnricherMetadata, IConfigurableExternalSearchProvider
+    public partial class ClearBitExternalSearchProvider : ExternalSearchProviderBase, IExternalSearchResultLogger, IExtendedEnricherMetadata, IConfigurableExternalSearchProvider, IExternalSearchProviderWithVerifyConnection
     {
         private static readonly EntityType[] DefaultAcceptedEntityTypes = { EntityType.Organization };
 
@@ -178,9 +179,12 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
         /// <param name="resultItem">The result item.</param>
         private void PopulateMetadata(IEntityMetadata metadata, IExternalSearchQueryResult<CompanyAutocompleteResult> resultItem, IExternalSearchRequest request)
         {
+            var code = new EntityCode(request.EntityMetaData.OriginEntityCode.Type, "clearBit", $"{request.Queries.FirstOrDefault()?.QueryKey}{request.EntityMetaData.OriginEntityCode}".ToDeterministicGuid());
+
             metadata.EntityType = request.EntityMetaData.EntityType;
             metadata.Name = request.EntityMetaData.Name;
-            metadata.OriginEntityCode = request.EntityMetaData.OriginEntityCode;
+            metadata.OriginEntityCode = code;
+            metadata.Codes.Add(request.EntityMetaData.OriginEntityCode);
 
             metadata.Properties[ClearBitVocabulary.Organization.Domain] = resultItem.Data.Domain;
             metadata.Properties[ClearBitVocabulary.Organization.Logo] = resultItem.Data.Logo;
@@ -205,6 +209,30 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
             var configurableAcceptedEntityTypes = this.Accepts(config).ToArray();
 
             return configurableAcceptedEntityTypes.Any(entityTypeToEvaluate.Is);
+        }
+
+        private ConnectionVerificationResult ConstructVerifyConnectionResponse(IRestResponse response)
+        {
+            var errorMessageBase = $"{Constants.ProviderName} returned \"{(int)response.StatusCode} {response.StatusDescription}\".";
+            if (response.ErrorException != null)
+            {
+                return new ConnectionVerificationResult(false, $"{errorMessageBase} {(!string.IsNullOrWhiteSpace(response.ErrorException.Message) ? response.ErrorException.Message : "This could be due to breaking changes in the external system")}.");
+            }
+
+            if (response.StatusCode is HttpStatusCode.Unauthorized)
+            {
+                return new ConnectionVerificationResult(false, $"{errorMessageBase} This could be due to invalid API key.");
+            }
+
+            var regex = new Regex(@"\<(html|head|body|div|span|img|p\>|a href)", RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.IgnorePatternWhitespace);
+            var isHtml = regex.IsMatch(response.Content);
+
+            var errorMessage = response.IsSuccessful ? string.Empty
+                : string.IsNullOrWhiteSpace(response.Content) || isHtml
+                    ? $"{errorMessageBase} This could be due to breaking changes in the external system."
+                    : $"{errorMessageBase} {response.Content}.";
+
+            return new ConnectionVerificationResult(response.IsSuccessful, errorMessage);
         }
 
         public IEnumerable<IExternalSearchQuery> BuildQueries(ExecutionContext context, IExternalSearchRequest request, IDictionary<string, object> config, IProvider provider)
@@ -252,9 +280,9 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
         public IEnumerable<Clue> BuildClues(ExecutionContext context, IExternalSearchQuery query, IExternalSearchQueryResult result, IExternalSearchRequest request, IDictionary<string, object> config, IProvider provider)
         {
             var resultItem = result.As<CompanyAutocompleteResult>();
+            var code = new EntityCode(request.EntityMetaData.OriginEntityCode.Type, "clearBit", $"{query.QueryKey}{request.EntityMetaData.OriginEntityCode}".ToDeterministicGuid());
 
-            var clue = new Clue(request.EntityMetaData.OriginEntityCode, context.Organization);
-            clue.Data.OriginProviderDefinitionId = this.Id;
+            var clue = new Clue(code, context.Organization) { Data = { OriginProviderDefinitionId = this.Id } };
 
             this.PopulateMetadata(clue.Data.EntityData, resultItem, request);
             this.DownloadPreviewImage(context, resultItem.Data.Logo, clue);
@@ -273,6 +301,16 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
             return this.DownloadPreviewImageBlob<CompanyAutocompleteResult>(context, result, r => r.Data.Logo);
         }
 
+        public ConnectionVerificationResult VerifyConnection(ExecutionContext context, IReadOnlyDictionary<string, object> config)
+        {
+            var client = new RestClient("https://autocomplete.clearbit.com");
+            var request = new RestRequest(string.Format("/v1/companies/suggest?query=Google"), Method.GET);
+
+            var response = client.ExecuteAsync<List<CompanyAutocompleteResult>>(request).Result;
+
+            return ConstructVerifyConnectionResponse(response);
+        }
+
         public string Icon { get; } = Constants.Icon;
         public string Domain { get; } = Constants.Domain;
         public string About { get; } = Constants.About;
@@ -280,6 +318,5 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
         public IEnumerable<Control> Properties { get; } = Constants.Properties;
         public Guide Guide { get; } = Constants.Guide;
         public IntegrationType Type { get; } = Constants.IntegrationType;
-
     }
 }
