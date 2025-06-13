@@ -120,5 +120,10 @@ namespace CluedIn.Provider.ClearBit
         public IEnumerable<Control> Properties { get; } = Constants.Properties;
         public Guide Guide { get; } = Constants.Guide;
         public new IntegrationType Type { get; } = Constants.IntegrationType;
+        public Dictionary<string, HashSet<string>> ValidRequiredFieldConfigurationCombinations => new() {
+            { "Website", [Constants.KeyName.WebsiteKey] },
+            { "Organization Name", [Constants.KeyName.OrgNameKey] },
+            { "Email Domain", [Constants.KeyName.EmailDomainKey] }
+        };
     }
 }
