@@ -125,6 +125,10 @@ namespace CluedIn.Provider.ClearBit
         public Dictionary<string, object> ExtraInfo { get; } = new()
         {
             { "autoMap", true },
+            { "useEnricherOriginEntityCode", true },
+            { "supportConfidenceScore", false }, // for UI
+            { "minConfidenceScore", 0 }, // for UI
+            { "maxConfidenceScore", 100 }, // for UI
             { "origin", Constants.ProviderName.ToCamelCase() },
             { "originField", string.Empty },
             { "nameKeyField", Constants.KeyName.OrgNameKey },
