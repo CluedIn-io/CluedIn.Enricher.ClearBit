@@ -136,5 +136,10 @@ namespace CluedIn.Provider.ClearBit
             { "autoSubmission", false },
             { "dataSourceSetId", string.Empty },
         };
+        public Dictionary<string, HashSet<string>> ValidRequiredFieldConfigurationCombinations => new() {
+            { "Website", [Constants.KeyName.WebsiteKey] },
+            { "Organization Name", [Constants.KeyName.OrgNameKey] },
+            { "Email Domain", [Constants.KeyName.EmailDomainKey] }
+        };
     }
 }
