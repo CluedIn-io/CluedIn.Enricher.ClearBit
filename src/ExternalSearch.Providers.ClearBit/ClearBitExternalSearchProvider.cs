@@ -187,7 +187,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
         {
             switch (queriesGenerated)
             {
-                case false when isDomainAndNameEmpty() && isAllRequiredVocabularyKeyAvailable():
+                case false when isDomainAndNameEmpty() && isAllVocabularyKeyAvailable():
                     throw new Exception($"Unable to generate queries for {entityName}. Name either is empty or has been filtered out. Email domain name and website are empty.");
                 case false when isDomainAndNameEmpty() && !string.IsNullOrWhiteSpace(jobData.OrgNameKey):
                     throw new Exception($"Unable to generate queries for {entityName}. Name either is empty or has been filtered out.");
@@ -199,9 +199,9 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
 
             return;
 
-            bool isAllRequiredVocabularyKeyAvailable() => !string.IsNullOrWhiteSpace(jobData.OrgNameKey) &&
-                                                          !string.IsNullOrWhiteSpace(jobData.EmailDomainKey) &&
-                                                          !string.IsNullOrWhiteSpace(jobData.WebsiteKey);
+            bool isAllVocabularyKeyAvailable() => !string.IsNullOrWhiteSpace(jobData.OrgNameKey) &&
+                                                  !string.IsNullOrWhiteSpace(jobData.EmailDomainKey) &&
+                                                  !string.IsNullOrWhiteSpace(jobData.WebsiteKey);
 
             bool isDomainAndNameEmpty() => !website.Any() && !emailDomainNames.Any() && !organizationName.Any();
         }
