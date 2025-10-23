@@ -68,12 +68,14 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
                 yield break;
 
             var existingResults = request.GetQueryResults<CompanyAutocompleteResult>(this).ToList();
+            var jobData = new ClearBitExternalSearchJobData(config);
 
-            Func<string, bool> domainFilter = value => existingResults.Any(r => string.Equals(r.Data.Domain, value, StringComparison.InvariantCultureIgnoreCase));
+            Func<string, bool> existingDomainDataFilter = value => existingResults.Any(r => string.Equals(r.Data.Domain, value, StringComparison.InvariantCultureIgnoreCase));
             Func<string, bool> nameFilter = value => OrganizationFilters.NameFilter(context, value);
 
             // Query Input
             var entityType = request.EntityMetaData.EntityType;
+            var entityName = !string.IsNullOrEmpty(request.EntityMetaData.Name) ? request.EntityMetaData.Name : request.EntityMetaData.DisplayName;
             var website = new HashSet<string>();
             var organizationName = new HashSet<string>();
             var emailDomainNames = new HashSet<string>();
@@ -115,6 +117,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
 
             request.EntityMetaData.Aliases.ForEach(a => organizationName.Add(a));
 
+            var queriesGenerated = false;
             if (website.Any())
             {
                 var values = website;
@@ -125,11 +128,17 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
 
                     if (Uri.TryCreate(value, UriKind.Absolute, out uri))
                     {
-                        if (!domainFilter(uri.Host))
+                        if (!existingDomainDataFilter(uri.Host))
+                        {
+                            queriesGenerated = true;
                             yield return new ExternalSearchQuery(this, entityType, ExternalSearchQueryParameter.Domain, uri.Host);
+                        }
                     }
-                    else if (!domainFilter(value))
+                    else if (!existingDomainDataFilter(value))
+                    {
+                        queriesGenerated = true;
                         yield return new ExternalSearchQuery(this, entityType, ExternalSearchQueryParameter.Domain, value);
+                    }
                 }
             }
 
@@ -137,17 +146,23 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
             {
                 var values = emailDomainNames.SelectMany(v => v.Split(new[] { ",", ";", "|" }, StringSplitOptions.RemoveEmptyEntries)).Select(v => v.ToLowerInvariant()).ToHashSet();
 
-                foreach (var value in values.Where(v => !domainFilter(v)))
+                foreach (var value in values.Where(v => !existingDomainDataFilter(v)))
                 {
                     Uri uri;
 
                     if (Uri.TryCreate(value, UriKind.Absolute, out uri))
                     {
-                        if (!domainFilter(uri.Host))
+                        if (!existingDomainDataFilter(uri.Host))
+                        {
+                            queriesGenerated = true;
                             yield return new ExternalSearchQuery(this, entityType, ExternalSearchQueryParameter.Domain, uri.Host);
+                        }
                     }
-                    else if (!domainFilter(value))
+                    else if (!existingDomainDataFilter(value))
+                    {
+                        queriesGenerated = true;
                         yield return new ExternalSearchQuery(this, entityType, ExternalSearchQueryParameter.Domain, value);
+                    }
                 }
             }
 
@@ -158,8 +173,37 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
                                              .ToHashSet();
 
                 foreach (var value in values.Where(v => !nameFilter(v)))
+                {
+                    queriesGenerated = true;
                     yield return new ExternalSearchQuery(this, entityType, ExternalSearchQueryParameter.Name, value);
+                }
             }
+
+            // Throw error when queries not generated
+            ThrowExceptions(queriesGenerated, website, emailDomainNames, organizationName, entityName, jobData);
+        }
+
+        private static void ThrowExceptions(bool queriesGenerated, HashSet<string> website, HashSet<string> emailDomainNames, HashSet<string> organizationName, string entityName, ClearBitExternalSearchJobData jobData)
+        {
+            switch (queriesGenerated)
+            {
+                case false when isDomainAndNameEmpty() && isAllRequiredVocabularyKeyAvailable():
+                    throw new Exception($"Unable to generate queries for {entityName}. Name either is empty or has been filtered out. Email domain name and website are empty.");
+                case false when isDomainAndNameEmpty() && !string.IsNullOrWhiteSpace(jobData.OrgNameKey):
+                    throw new Exception($"Unable to generate queries for {entityName}. Name either is empty or has been filtered out.");
+                case false when isDomainAndNameEmpty() && !string.IsNullOrWhiteSpace(jobData.EmailDomainKey):
+                    throw new Exception($"Unable to generate queries for {entityName}. Email domain name is empty.");
+                case false when isDomainAndNameEmpty() && !string.IsNullOrWhiteSpace(jobData.WebsiteKey):
+                    throw new Exception($"Unable to generate queries for {entityName}. Website is empty.");
+            }
+
+            return;
+
+            bool isAllRequiredVocabularyKeyAvailable() => !string.IsNullOrWhiteSpace(jobData.OrgNameKey) &&
+                                                          !string.IsNullOrWhiteSpace(jobData.EmailDomainKey) &&
+                                                          !string.IsNullOrWhiteSpace(jobData.WebsiteKey);
+
+            bool isDomainAndNameEmpty() => !website.Any() && !emailDomainNames.Any() && !organizationName.Any();
         }
 
         /// <summary>Creates the metadata.</summary>
@@ -269,8 +313,6 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
                     yield break;
                 }
             }
-            else if (response.StatusCode == HttpStatusCode.NoContent || response.StatusCode == HttpStatusCode.NotFound)
-                yield break;
             else if (response.ErrorException != null)
                 throw new AggregateException(response.ErrorException.Message, response.ErrorException);
             else
