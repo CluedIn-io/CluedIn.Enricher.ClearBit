@@ -188,11 +188,11 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
             switch (queriesGenerated)
             {
                 case false when isDomainAndNameEmpty() && isAllVocabularyKeyAvailable():
-                    throw new Exception($"Unable to generate queries for {entityName}. Name either is empty or has been filtered out. Email domain name and website are empty.");
+                    throw new Exception($"Unable to generate queries for {entityName}. Name either is empty or has been filtered out. Email domain and website are empty.");
                 case false when isDomainAndNameEmpty() && !string.IsNullOrWhiteSpace(jobData.OrgNameKey):
                     throw new Exception($"Unable to generate queries for {entityName}. Name either is empty or has been filtered out.");
                 case false when isDomainAndNameEmpty() && !string.IsNullOrWhiteSpace(jobData.EmailDomainKey):
-                    throw new Exception($"Unable to generate queries for {entityName}. Email domain name is empty.");
+                    throw new Exception($"Unable to generate queries for {entityName}. Email domain is empty.");
                 case false when isDomainAndNameEmpty() && !string.IsNullOrWhiteSpace(jobData.WebsiteKey):
                     throw new Exception($"Unable to generate queries for {entityName}. Website is empty.");
             }
