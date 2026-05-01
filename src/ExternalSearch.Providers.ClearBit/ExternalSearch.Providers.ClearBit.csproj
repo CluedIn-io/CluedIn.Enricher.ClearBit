@@ -11,7 +11,6 @@
     <EmbeddedResource Include="Resources\clearbit-vector-logo.svg" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="ComponentHost" />
     <PackageReference Include="CluedIn.Core" />
     <PackageReference Include="CluedIn.ExternalSearch" />
     <PackageReference Include="CluedIn.Processing" />
