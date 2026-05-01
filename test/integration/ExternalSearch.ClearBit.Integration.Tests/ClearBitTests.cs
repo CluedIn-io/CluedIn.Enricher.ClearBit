@@ -8,11 +8,11 @@ using CluedIn.Core.Serialization;
 using CluedIn.Core.Workflows;
 using CluedIn.ExternalSearch;
 using CluedIn.ExternalSearch.Providers.ClearBit;
-using CluedIn.Testing.Base.Context;
 using CluedIn.Testing.Base.ExternalSearch;
 using CluedIn.Testing.Base.Processing.Actors;
 using Moq;
 using Xunit;
+using TestContext = CluedIn.Testing.Base.Context.TestContext;
 
 namespace ExternalSearch.ClearBit.Integration.Tests
 {
@@ -52,10 +52,10 @@ namespace ExternalSearch.ClearBit.Integration.Tests
             context.Workflow        = command.Workflow;
 
             // Act
-            var result = actor.ProcessWorkflowStep(context, command);
+            var result = actor.ProcessWorkflowStepAsync(context, command).GetAwaiter().GetResult();
             Assert.Equal(WorkflowStepResult.Repeat.SaveResult, result.SaveResult);
 
-            result = actor.ProcessWorkflowStep(context, command);
+            result = actor.ProcessWorkflowStepAsync(context, command).GetAwaiter().GetResult();
             Assert.Equal(WorkflowStepResult.Success.SaveResult, result.SaveResult);
             context.Workflow.AddStepResult(result);
             

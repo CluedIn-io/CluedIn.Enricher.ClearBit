@@ -255,7 +255,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
             return configurableAcceptedEntityTypes.Any(entityTypeToEvaluate.Is);
         }
 
-        private ConnectionVerificationResult ConstructVerifyConnectionResponse(IRestResponse response)
+        private ConnectionVerificationResult ConstructVerifyConnectionResponse(RestResponse response)
         {
             var errorMessageBase = $"{Constants.ProviderName} returned \"{(int)response.StatusCode} {response.StatusDescription}\".";
             if (response.ErrorException != null)
@@ -296,9 +296,9 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
                 yield break;
 
             var client = new RestClient("https://autocomplete.clearbit.com");
-            var request = new RestRequest(string.Format("/v1/companies/suggest?query={0}", name ?? domain), Method.GET);
+            var request = new RestRequest(string.Format("/v1/companies/suggest?query={0}", name ?? domain), Method.Get);
 
-            var response = client.ExecuteTaskAsync<List<CompanyAutocompleteResult>>(request).Result;
+            var response = client.ExecuteAsync<List<CompanyAutocompleteResult>>(request).Result;
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
@@ -346,7 +346,7 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
         public ConnectionVerificationResult VerifyConnection(ExecutionContext context, IReadOnlyDictionary<string, object> config)
         {
             var client = new RestClient("https://autocomplete.clearbit.com");
-            var request = new RestRequest(string.Format("/v1/companies/suggest?query=Google"), Method.GET);
+            var request = new RestRequest(string.Format("/v1/companies/suggest?query=Google"), Method.Get);
 
             var response = client.ExecuteAsync<List<CompanyAutocompleteResult>>(request).Result;
 
