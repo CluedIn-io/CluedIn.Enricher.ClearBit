@@ -121,10 +121,10 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
             var sharedApiToken = ConfigurationManagerEx.AppSettings["Providers.ExternalSearch.ClearBit.ApiToken"];
 
             var client = new RestClient("https://person-stream.clearbit.com");
-            var request = new RestRequest(string.Format("/v2/combined/find?email={0}", name), Method.GET);
+            var request = new RestRequest(string.Format("/v2/combined/find?email={0}", name), Method.Get);
             request.AddHeader("Authorization", "Bearer " + sharedApiToken);
 
-            var response = client.ExecuteTaskAsync<ClearbitResponse>(request).Result;
+            var response = client.ExecuteAsync<ClearbitResponse>(request).Result;
 
             if (response.StatusCode == HttpStatusCode.OK)
             {

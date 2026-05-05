@@ -90,10 +90,10 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
             var sharedApiToken = ConfigurationManagerEx.AppSettings["Providers.ExternalSearch.ClearBit.ApiToken"];
 
             var client = new RestClient("https://reveal.clearbit.com");
-            var request = new RestRequest(string.Format("/v1/companies/find?ip={0}", name), Method.GET);
+            var request = new RestRequest(string.Format("/v1/companies/find?ip={0}", name), Method.Get);
             request.AddHeader("Authorization", "Bearer " + sharedApiToken);
 
-            var response = client.ExecuteTaskAsync<ClearbitResponse>(request).Result;
+            var response = client.ExecuteAsync<ClearbitResponse>(request).Result;
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
