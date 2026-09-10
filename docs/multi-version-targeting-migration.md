@@ -111,7 +111,10 @@ path): `MajorMinorPatch: "1.0.0"`, confirmed correct.
 
 ## Step 7 — Push and confirm CI
 
-Status: *(update after pushing)*
+Status: **Done**
+
+Fully green on the first push (build 151974, PR #41): all three `Multi-version build+test` legs
+(4.7.0, 4.8.0, 5.0.0-beta.*) and `Multi-version: publish` passed.
 
 ---
 
@@ -124,4 +127,4 @@ Status: *(update after pushing)*
 - [x] `NuGet.config` — renamed from `Nuget.config`; feeds confirmed sufficient as-is
 - [x] Source — `#if CLUEDIN_V50` guards for the RestSharp 106↔114 break (3 call sites in `ClearBitExternalSearchProvider.cs`); both src projects + integration tests build 0 errors on all three legs
 - [x] `GitVersion.yml` — `next-version: 1.0`; `ignore.commits-before: 2026-06-20T00:00:00` (2-day padding); verified `MajorMinorPatch: "1.0.0"` with the pinned GitVersion.Tool 5.9.0
-- [ ] Push branch and confirm the actual Azure DevOps pipeline run is green end-to-end
+- [x] Pushed branch and confirmed the Azure DevOps pipeline is green end-to-end — PR #41, build 151974: all three legs + `Multi-version: publish` passed on the first run
