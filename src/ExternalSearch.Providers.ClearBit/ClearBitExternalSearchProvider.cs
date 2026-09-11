@@ -256,7 +256,14 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
             return configurableAcceptedEntityTypes.Any(entityTypeToEvaluate.Is);
         }
 
+        // RestSharp is a transitive dependency whose major version differs by CluedIn generation:
+        // 106.15.0 (4.7/4.8, net6.0) exposes only IRestResponse and Method.GET; 114.0.0 (5.0+,
+        // net10.0) replaced it with the concrete RestResponse type and Method.Get.
+#if CLUEDIN_V50
         private ConnectionVerificationResult ConstructVerifyConnectionResponse(RestResponse response)
+#else
+        private ConnectionVerificationResult ConstructVerifyConnectionResponse(IRestResponse response)
+#endif
         {
             var errorMessageBase = $"{Constants.ProviderName} returned \"{(int)response.StatusCode} {response.StatusDescription}\".";
             if (response.ErrorException != null)
@@ -297,7 +304,11 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
                 yield break;
 
             var client = new RestClient("https://autocomplete.clearbit.com");
+#if CLUEDIN_V50
             var request = new RestRequest(string.Format("/v1/companies/suggest?query={0}", name ?? domain), Method.Get);
+#else
+            var request = new RestRequest(string.Format("/v1/companies/suggest?query={0}", name ?? domain), Method.GET);
+#endif
 
             var response = client.ExecuteAsync<List<CompanyAutocompleteResult>>(request).Result;
 
@@ -347,7 +358,11 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
         public ConnectionVerificationResult VerifyConnection(ExecutionContext context, IReadOnlyDictionary<string, object> config)
         {
             var client = new RestClient("https://autocomplete.clearbit.com");
+#if CLUEDIN_V50
             var request = new RestRequest(string.Format("/v1/companies/suggest?query=Google"), Method.Get);
+#else
+            var request = new RestRequest(string.Format("/v1/companies/suggest?query=Google"), Method.GET);
+#endif
 
             var response = client.ExecuteAsync<List<CompanyAutocompleteResult>>(request).Result;
 
