@@ -128,3 +128,23 @@ Fully green on the first push (build 151974, PR #41): all three `Multi-version b
 - [x] Source — `#if CLUEDIN_V50` guards for the RestSharp 106↔114 break (3 call sites in `ClearBitExternalSearchProvider.cs`); both src projects + integration tests build 0 errors on all three legs
 - [x] `GitVersion.yml` — `next-version: 1.0`; `ignore.commits-before: 2026-06-20T00:00:00` (2-day padding); verified `MajorMinorPatch: "1.0.0"` with the pinned GitVersion.Tool 5.9.0
 - [x] Pushed branch and confirmed the Azure DevOps pipeline is green end-to-end — PR #41, build 151974: all three legs + `Multi-version: publish` passed on the first run
+
+---
+
+## Addendum — version baseline moved from 1.0.0 to 100.0.0
+
+Status: **Done**
+
+The CluedIn version is now carried entirely by the package suffix (`.470`/`.480`/`.500`), not by
+this repo's own `next-version` number, so that number moved again, from `1.0` to `100.0`. Reason:
+repos that were previously at 4.x/5.x under the old single-version-targeting scheme would appear to
+"go backwards" if their next version showed as `1.0.0` — `100.0.0` is unambiguously higher than any
+prior single-version release number this repo ever had.
+
+Unlike the original `1.0` reset, no `commits-before`/`ignore` trick is needed this time:
+`next-version` only needs help overriding an existing tag when the configured value is *lower* than
+that tag, and `100.0` is already higher than every pre-existing tag here. Removed the
+`ignore.commits-before` line entirely (kept `ignore.sha: []`).
+
+Verified with a real local `dotnet-gitversion` run: `MajorMinorPatch` resolves to `"100.0.0"`.
+`docs/1.0.0-release-notes.md` renamed to `docs/100.0.0-release-notes.md`.
