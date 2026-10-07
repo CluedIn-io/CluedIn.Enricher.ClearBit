@@ -104,12 +104,12 @@ namespace CluedIn.ExternalSearch.Providers.ClearBit
             var sharedApiToken = ConfigurationManagerEx.AppSettings["Providers.ExternalSearch.ClearBit.ApiToken"];
 
             var client = new RestClient("https://prospector.clearbit.com");
-            var request = new RestRequest(string.Format("/v1/people/search"), Method.GET);
+            var request = new RestRequest(string.Format("/v1/people/search"), Method.Get);
             request.AddParameter("domain", name);
             request.AddParameter("limit", 20);
             request.AddHeader("Authorization", "Bearer " + sharedApiToken);
 
-            var response = client.ExecuteTaskAsync<ClearbitResponse>(request).Result;
+            var response = client.ExecuteAsync<ClearbitResponse>(request).Result;
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
